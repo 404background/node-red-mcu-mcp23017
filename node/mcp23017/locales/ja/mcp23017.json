@@ -1,0 +1,28 @@
+{
+    "mcp23017": {
+        "label": "MCP23017",
+        "label_default": "MCP23017 P{{pin}}",
+        "name": "名前",
+        "address": "I2C アドレス",
+        "pin": "ピン",
+        "sda": "SDA ピン",
+        "scl": "SCL ピン",
+        "mode": "モード",
+        "mode_output": "入力 (ピンを読み取り)",
+        "mode_input": "出力 (ピンを駆動)",
+        "pollInterval": "ポーリング間隔 (ms)",
+        "pullup": "プルアップ抵抗を有効にする",
+        "help": "MCP23017 の 1 ピンを制御します。",
+        "status_initializing": "初期化中",
+        "status_monitoring": "監視中",
+        "status_ready": "準備完了",
+        "status_high": "HIGH",
+        "status_low": "LOW",
+        "status_pin_conflict": "ピン使用中",
+        "status_error": "エラー",
+        "status_invalid_config": "設定エラー",
+        "warn_invalid_payload": "msg.payload には 0 または 1 を指定してください",
+        "error_invalid_config": "MCP23017 の設定が正しくありません",
+        "error_pin_conflict": "入力と出力で同じピンは使用できません"
+    }
+}

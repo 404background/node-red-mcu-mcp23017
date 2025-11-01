@@ -1,0 +1,12 @@
+{
+    "include": [
+        "$(MODDABLE)/examples/manifest_base.json",
+        "$(MODULES)/drivers/mcp230xx/manifest.json"
+    ],
+    "modules": {
+        "mcu_mcp23017": "./node/mcp23017/mcu_mcp23017"
+    },
+    "preload": [
+        "mcu_mcp23017"
+    ]
+}

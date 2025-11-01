@@ -1,0 +1,28 @@
+{
+    "mcp23017": {
+        "label": "MCP23017",
+        "label_default": "MCP23017 P{{pin}}",
+        "name": "Name",
+        "address": "I2C Address",
+        "pin": "Pin",
+        "sda": "SDA pin",
+        "scl": "SCL pin",
+        "mode": "Mode",
+        "mode_output": "Input (read pin)",
+        "mode_input": "Output (drive pin)",
+        "pollInterval": "Poll interval (ms)",
+        "pullup": "Enable pull-up resistor",
+        "help": "Control a single MCP23017 pin.",
+        "status_initializing": "initializing",
+        "status_monitoring": "monitoring",
+        "status_ready": "ready",
+        "status_high": "HIGH",
+        "status_low": "LOW",
+        "status_pin_conflict": "pin in use",
+        "status_error": "error",
+        "status_invalid_config": "invalid config",
+        "warn_invalid_payload": "Expected msg.payload to resolve to 0 or 1",
+        "error_invalid_config": "Invalid MCP23017 configuration",
+        "error_pin_conflict": "Pin already used in opposite mode"
+    }
+}

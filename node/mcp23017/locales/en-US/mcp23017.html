@@ -1,0 +1,14 @@
+<script type="text/html" data-help-name="mcp23017">
+  <p>
+    The MCP23017 node controls a single GPIO on an MCP23017 I/O expander connected over I2C.
+  </p>
+  <p>
+    <b>Input (read pin)</b>: configures the pin as an input, polls it at the configured interval, and sends a message when the state changes. The state is written to <code>msg.payload</code> and shown in the node status.
+  </p>
+  <p>
+    <b>Output (drive pin)</b>: expects <code>msg.payload</code> values of 0 or 1 (or their string/boolean equivalents) and drives the selected pin accordingly. The written state is reflected in the node status and forwarded.
+  </p>
+  <p>
+    Configure the MCP23017 I2C address and pin number in the edit dialog. Enable the optional pull-up resistor when the monitored circuit requires it.
+  </p>
+</script>

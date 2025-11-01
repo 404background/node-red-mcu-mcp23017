@@ -1,0 +1,136 @@
+<script type="text/javascript">
+    RED.nodes.registerType('mcp23017', {
+        category: 'MCU',
+        color: '#a2aaff',
+        defaults: {
+            name: { value: '' },
+            address: { value: '0x20', required: true },
+            pin: { value: '0', required: true },
+            mode: { value: 'output' },
+            pollInterval: { value: 50 },
+            pullup: { value: false },
+            sda: { value: 6 },
+            scl: { value: 7 }
+        },
+        inputs: 0,
+        outputs: 1,
+        align: 'left',
+        icon: 'font-awesome/fa-microchip',
+        paletteLabel: 'MCP23017',
+        outputLabels: function(index) {
+            return this.mode === 'output' ? this._('mcp23017.output_label') : null;
+        },
+        inputLabels: function(index) {
+            return this.mode === 'input' ? this._('mcp23017.input_label') : null;
+        },
+        label: function() {
+            if (this.name) {
+                return this.name;
+            }
+            const pin = typeof this.pin !== 'undefined' ? this.pin : '?';
+            const template = this._('mcp23017.label_default');
+            if (typeof template === 'string') {
+                return template.replace(/\{\{\s*pin\s*\}\}/g, pin);
+            }
+            return `MCP23017 ${pin}`;
+        },
+        labelStyle: function() {
+            return this.name ? 'node_label_italic' : '';
+        },
+        oneditprepare: function() {
+            const node = this;
+            const pinSelect = $('#node-input-pin');
+            if (pinSelect.children().length === 0) {
+                for (let i = 0; i < 16; i++) {
+                    const option = $('<option></option>').val(String(i)).text(i);
+                    pinSelect.append(option);
+                }
+            }
+
+            const modeSelect = $('#node-input-mode');
+            const pollRow = $('.form-row[data-row="pollInterval"]');
+            const pullupRow = $('.form-row[data-row="pullup"]');
+
+            function applyMode(mode) {
+                node.mode = mode;
+                if (mode === 'output') {
+                    pollRow.show();
+                    pullupRow.show();
+                    node.inputs = 0;
+                    node.outputs = 1;
+                    node.align = 'left';
+                } else {
+                    pollRow.hide();
+                    pullupRow.hide();
+                    node.inputs = 1;
+                    node.outputs = 0;
+                    node.align = 'right';
+                }
+            }
+
+            function handleModeChange() {
+                const mode = modeSelect.val();
+                applyMode(mode);
+            }
+
+            if (node.mode) {
+                modeSelect.val(node.mode);
+            }
+
+            modeSelect.on('change', handleModeChange);
+            handleModeChange();
+        },
+        oneditsave: function() {
+            const mode = $('#node-input-mode').val();
+            this.mode = mode;
+            if (mode === 'input') {
+                this.inputs = 1;
+                this.outputs = 0;
+                this.align = 'right';
+            } else {
+                this.inputs = 0;
+                this.outputs = 1;
+                this.align = 'left';
+            }
+            this.moddable_manifest = this.moddable_manifest || { include: [] };
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mcp23017">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="mcp23017.name"></span></label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-plug"></i> <span data-i18n="mcp23017.address"></span></label>
+        <input type="text" id="node-input-address" placeholder="0x20">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pin"><i class="fa fa-thumb-tack"></i> <span data-i18n="mcp23017.pin"></span></label>
+        <select id="node-input-pin"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-sda"><i class="fa fa-exchange"></i> <span data-i18n="mcp23017.sda"></span></label>
+        <input type="number" id="node-input-sda" min="0" max="255" step="1" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-scl"><i class="fa fa-exchange"></i> <span data-i18n="mcp23017.scl"></span></label>
+        <input type="number" id="node-input-scl" min="0" max="255" step="1" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-exchange"></i> <span data-i18n="mcp23017.mode"></span></label>
+        <select id="node-input-mode">
+            <option value="output" data-i18n="mcp23017.mode_output"></option>
+            <option value="input" data-i18n="mcp23017.mode_input"></option>
+        </select>
+    </div>
+    <div class="form-row" data-row="pollInterval">
+        <label for="node-input-pollInterval"><i class="fa fa-clock-o"></i> <span data-i18n="mcp23017.pollInterval"></span></label>
+        <input type="number" id="node-input-pollInterval" min="20" step="10">
+    </div>
+    <div class="form-row" data-row="pullup">
+        <label for="node-input-pullup"><i class="fa fa-toggle-on"></i> <span data-i18n="mcp23017.pullup"></span></label>
+        <input type="checkbox" id="node-input-pullup" style="width:auto;">
+    </div>
+</script>

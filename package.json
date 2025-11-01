@@ -1,0 +1,20 @@
+{
+    "name": "node-red-mcu-mcp23017",
+    "version": "0.1.0",
+    "description": "Node-RED MCU node for controlling MCP23017 I/O expander pins.",
+    "main": "node/mcp23017/mcp23017.js",
+    "keywords": [
+        "node-red",
+        "node-red-node",
+        "mcu",
+        "mcp23017",
+        "i2c"
+    ],
+    "author": "404background",
+    "license": "MIT",
+    "node-red": {
+        "nodes": {
+            "mcp23017": "node/mcp23017/mcp23017.js"
+        }
+    }
+}
