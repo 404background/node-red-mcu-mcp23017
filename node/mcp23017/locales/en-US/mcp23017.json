@@ -21,7 +21,7 @@
         "status_pin_conflict": "pin in use",
         "status_error": "error",
         "status_invalid_config": "invalid config",
-        "warn_invalid_payload": "Expected msg.payload to resolve to 0 or 1",
+        "warn_invalid_payload": "Expected msg.payload to be 0 or 1",
         "error_invalid_config": "Invalid MCP23017 configuration",
         "error_pin_conflict": "Pin already used in opposite mode"
     }
