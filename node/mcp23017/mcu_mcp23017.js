@@ -14,13 +14,9 @@ function acquireExpander(address, sda, scl) {
     let entry = expanderCache[key];
     if (!entry) {
         const options = { address };
-        if (sda !== undefined && sda !== null) {
-            options.sda = sda;
-        }
-        if (scl !== undefined && scl !== null) {
-            options.scl = scl;
-        }
-    entry = { expander: new MCP23017(options), refs: 0, pins: Object.create(null) };
+        options.sda = sda;
+        options.scl = scl;
+        entry = { expander: new MCP23017(options), refs: 0, pins: Object.create(null) };
         expanderCache[key] = entry;
     }
     entry.refs += 1;
@@ -64,13 +60,13 @@ class MCP23017Node extends Node {
     onStart(config) {
         super.onStart(config);
 
-        const address = this.#readNumber(config?.address, 0x20);
-        const pin = this.#readNumber(config?.pin, 0);
+        const address = this.#readNumber(config.address);
+        const pin = this.#readNumber(config.pin);
         this.#mode = config?.mode === MODE_DRIVE ? MODE_DRIVE : MODE_MONITOR;
         this.#pollInterval = Math.max(MIN_POLL_INTERVAL, this.#readNumber(config?.pollInterval, DEFAULT_POLL_INTERVAL));
         this.#usePullup = config?.pullup === true || config?.pullup === "true";
-        this.#sda = this.#readNumber(config?.sda, 6);
-        this.#scl = this.#readNumber(config?.scl, 7);
+        this.#sda = this.#readNumber(config.sda);
+        this.#scl = this.#readNumber(config.scl);
         this.#pinReserved = false;
 
         if (!Number.isInteger(address) || !Number.isInteger(pin) || pin < 0 || pin > 15) {

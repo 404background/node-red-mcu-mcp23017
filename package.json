@@ -10,6 +10,10 @@
         "mcp23017",
         "i2c"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/404background/node-red-mcu-mcp23017.git"
+    },
     "author": "404background",
     "license": "MIT",
     "node-red": {
