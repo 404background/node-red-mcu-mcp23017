@@ -1,5 +1,5 @@
 {
-    "mcp23017": {
+    "mcu_mcp23017": {
         "label": "MCP23017",
         "label_default": "MCP23017 P{{pin}}",
         "name": "Name",

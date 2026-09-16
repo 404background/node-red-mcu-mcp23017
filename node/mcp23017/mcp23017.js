@@ -4,5 +4,5 @@ module.exports = function(RED) {
         this.config = config;
     }
 
-    RED.nodes.registerType('mcp23017', MCP23017Node);
+    RED.nodes.registerType('mcu_mcp23017', MCP23017Node);
 };

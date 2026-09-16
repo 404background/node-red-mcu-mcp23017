@@ -1,0 +1,10 @@
+# development only, not needed by the published node
+node-create-guidelines/
+.gitmodules
+.gitignore
+
+# the README links the images from the repository
+images/
+
+node_modules/
+*.tgz

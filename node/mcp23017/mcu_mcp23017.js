@@ -8,14 +8,21 @@ const MODE_MONITOR = "output";
 const MODE_DRIVE = "input";
 const MIN_POLL_INTERVAL = 20;
 const DEFAULT_POLL_INTERVAL = 50;
+const MIN_ADDRESS = 0x00;
+const MAX_ADDRESS = 0x7F;
+const MAX_POLL_ERRORS = 5;
 
 function acquireExpander(address, sda, scl) {
     const key = `${address}:${sda ?? ""}:${scl ?? ""}`;
     let entry = expanderCache[key];
     if (!entry) {
         const options = { address };
-        options.sda = sda;
-        options.scl = scl;
+        if (sda !== undefined) {
+            options.sda = sda;
+        }
+        if (scl !== undefined) {
+            options.scl = scl;
+        }
         entry = { expander: new MCP23017(options), refs: 0, pins: Object.create(null) };
         expanderCache[key] = entry;
     }
@@ -56,6 +63,7 @@ class MCP23017Node extends Node {
     #timerId;
     #lastState;
     #pinReserved;
+    #pollErrors;
 
     onStart(config) {
         super.onStart(config);
@@ -68,10 +76,12 @@ class MCP23017Node extends Node {
         this.#sda = this.#readNumber(config.sda);
         this.#scl = this.#readNumber(config.scl);
         this.#pinReserved = false;
+        this.#pollErrors = 0;
 
-        if (!Number.isInteger(address) || !Number.isInteger(pin) || pin < 0 || pin > 15) {
-            const status = (this._ && this._("mcp23017.status_invalid_config")) || "invalid config";
-            const errorMsg = (this._ && this._("mcp23017.error_invalid_config")) || "Invalid MCP23017 configuration";
+        const addressValid = Number.isInteger(address) && address >= MIN_ADDRESS && address <= MAX_ADDRESS;
+        if (!addressValid || !Number.isInteger(pin) || pin < 0 || pin > 15) {
+            const status = (this._ && this._("mcu_mcp23017.status_invalid_config")) || "invalid config";
+            const errorMsg = (this._ && this._("mcu_mcp23017.error_invalid_config")) || "Invalid MCP23017 configuration";
             this.status({ fill: "red", shape: "ring", text: status });
             this.error(errorMsg);
             return;
@@ -89,8 +99,8 @@ class MCP23017Node extends Node {
                 throw new Error("Pin index out of range");
             }
             if (!this.#reservePin()) {
-                const status = (this._ && this._("mcp23017.status_pin_conflict")) || "pin in use";
-                const errorMsg = (this._ && this._("mcp23017.error_pin_conflict")) || "Pin already used in opposite mode";
+                const status = (this._ && this._("mcu_mcp23017.status_pin_conflict")) || "pin in use";
+                const errorMsg = (this._ && this._("mcu_mcp23017.error_pin_conflict")) || "Pin already used in opposite mode";
                 this.status({ fill: "red", shape: "ring", text: status });
                 this.error(errorMsg);
                 this.#pin = undefined;
@@ -103,13 +113,13 @@ class MCP23017Node extends Node {
         } catch (error) {
             releaseExpander(this.#cacheKey);
             this.#cacheKey = undefined;
-            const status = (this._ && this._("mcp23017.status_error")) || "error";
+            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
             this.status({ fill: "red", shape: "ring", text: status });
             this.error(error?.message ?? error);
             return;
         }
 
-        const initializing = (this._ && this._("mcp23017.status_initializing")) || "initializing";
+        const initializing = (this._ && this._("mcu_mcp23017.status_initializing")) || "initializing";
         this.status({ fill: "grey", shape: "ring", text: initializing });
 
         if (this.#mode === MODE_MONITOR) {
@@ -127,21 +137,21 @@ class MCP23017Node extends Node {
 
         const value = msg?.payload;
         if (value !== 0 && value !== 1) {
-            const warnMsg = (this._ && this._("mcp23017.warn_invalid_payload")) || "Expected payload 0 or 1";
+            const warnMsg = (this._ && this._("mcu_mcp23017.warn_invalid_payload")) || "Expected payload 0 or 1";
             this.warn(warnMsg);
             done?.();
             return;
         }
 
         try {
+            // re-assert the direction, so a reset expander recovers on the next write
             this.#pin.mode(Digital.Output);
             this.#pin.write(value);
             this.#lastState = value;
             this.#updateStatus(value);
-            this.#sendPayload(value);
             done?.();
         } catch (error) {
-            const status = (this._ && this._("mcp23017.status_error")) || "error";
+            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
             this.status({ fill: "red", shape: "ring", text: status });
             this.error(error?.message ?? error, msg);
             done?.(error);
@@ -162,20 +172,21 @@ class MCP23017Node extends Node {
         this.#expander = undefined;
         this.#pin = undefined;
         this.#lastState = undefined;
+        this.#pollErrors = 0;
     }
 
     #startMonitoring() {
         try {
             this.#pin.mode(this.#usePullup ? Digital.InputPullUp : Digital.Input);
         } catch (error) {
-            const status = (this._ && this._("mcp23017.status_error")) || "error";
+            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
             this.status({ fill: "red", shape: "ring", text: status });
             this.error(error?.message ?? error);
             this.onStop();
             return;
         }
 
-        const monitoring = (this._ && this._("mcp23017.status_monitoring")) || "monitoring";
+        const monitoring = (this._ && this._("mcu_mcp23017.status_monitoring")) || "monitoring";
         this.status({ fill: "blue", shape: "ring", text: monitoring });
         // emit initial state immediately
         this.#poll(true);
@@ -186,20 +197,20 @@ class MCP23017Node extends Node {
         try {
             this.#pin.mode(Digital.Output);
         } catch (error) {
-            const status = (this._ && this._("mcp23017.status_error")) || "error";
+            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
             this.status({ fill: "red", shape: "ring", text: status });
             this.error(error?.message ?? error);
             this.onStop();
             return;
         }
 
-        const ready = (this._ && this._("mcp23017.status_ready")) || "ready";
+        const ready = (this._ && this._("mcu_mcp23017.status_ready")) || "ready";
         this.status({ fill: "green", shape: "dot", text: ready });
-        // ensure current output value is emitted
+        // reflect the current output value in the status, this mode has no output port
         const state = this.#safeRead();
         if (state !== undefined) {
             this.#lastState = state;
-            this.#sendPayload(state);
+            this.#updateStatus(state);
         }
     }
 
@@ -210,15 +221,24 @@ class MCP23017Node extends Node {
 
         try {
             const state = this.#pin.read();
+            this.#pollErrors = 0;
             if (forceEmit || state !== this.#lastState) {
                 this.#lastState = state;
                 this.#updateStatus(state);
                 this.#sendPayload(state);
             }
         } catch (error) {
-            const status = (this._ && this._("mcp23017.status_error")) || "error";
+            this.#pollErrors += 1;
+            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
             this.status({ fill: "red", shape: "ring", text: status });
-            this.error(error?.message ?? error);
+            if (this.#pollErrors >= MAX_POLL_ERRORS) {
+                // stop polling rather than repeating the same failure forever
+                if (this.#timerId !== undefined) {
+                    Timer.clear(this.#timerId);
+                    this.#timerId = undefined;
+                }
+                this.error(error?.message ?? error);
+            }
         }
     }
 
@@ -289,7 +309,7 @@ class MCP23017Node extends Node {
         return undefined;
     }
 
-    static type = "mcp23017";
+    static type = "mcu_mcp23017";
 
     static {
         RED.nodes.registerType(this.type, this);
