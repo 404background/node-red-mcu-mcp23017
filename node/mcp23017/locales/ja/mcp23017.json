@@ -10,6 +10,8 @@
         "mode": "モード",
         "mode_output": "入力 (ピンを読み取り)",
         "mode_input": "出力 (ピンを駆動)",
+        "output_label": "ピンの状態 (0 / 1)",
+        "input_label": "0 / 1 を書き込み",
         "pollInterval": "ポーリング間隔 (ms)",
         "pullup": "プルアップ抵抗を有効にする",
         "help": "MCP23017 の 1 ピンを制御します。",

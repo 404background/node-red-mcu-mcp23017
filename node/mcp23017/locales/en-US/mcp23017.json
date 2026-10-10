@@ -10,6 +10,8 @@
         "mode": "Mode",
         "mode_output": "Input (read pin)",
         "mode_input": "Output (drive pin)",
+        "output_label": "pin state (0 / 1)",
+        "input_label": "0 / 1 to drive",
         "pollInterval": "Poll interval (ms)",
         "pullup": "Enable pull-up resistor",
         "help": "Control a single MCP23017 pin.",

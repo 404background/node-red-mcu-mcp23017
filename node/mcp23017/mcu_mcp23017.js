@@ -12,6 +12,31 @@ const MIN_ADDRESS = 0x00;
 const MAX_ADDRESS = 0x7F;
 const MAX_POLL_ERRORS = 5;
 
+/*
+ * Status texts are locale keys: node-red-mcu-plugin relays the status to the
+ * editor, which translates it in the node's namespace. Logged messages are
+ * plain text (RED._ does not translate on the MCU).
+ */
+const STATUS = {
+    initializing: "mcu_mcp23017.status_initializing",
+    monitoring: "mcu_mcp23017.status_monitoring",
+    ready: "mcu_mcp23017.status_ready",
+    pinConflict: "mcu_mcp23017.status_pin_conflict",
+    error: "mcu_mcp23017.status_error",
+    invalidConfig: "mcu_mcp23017.status_invalid_config"
+};
+
+/* 0 / 1, true / false and "0" / "1" drive the pin; anything else is undefined */
+function toPinValue(value) {
+    if (value === 0 || value === 1)
+        return value;
+    if (value === true || value === "1")
+        return 1;
+    if (value === false || value === "0")
+        return 0;
+    return undefined;
+}
+
 function acquireExpander(address, sda, scl) {
     const key = `${address}:${sda ?? ""}:${scl ?? ""}`;
     let entry = expanderCache[key];
@@ -80,10 +105,8 @@ class MCP23017Node extends Node {
 
         const addressValid = Number.isInteger(address) && address >= MIN_ADDRESS && address <= MAX_ADDRESS;
         if (!addressValid || !Number.isInteger(pin) || pin < 0 || pin > 15) {
-            const status = (this._ && this._("mcu_mcp23017.status_invalid_config")) || "invalid config";
-            const errorMsg = (this._ && this._("mcu_mcp23017.error_invalid_config")) || "Invalid MCP23017 configuration";
-            this.status({ fill: "red", shape: "ring", text: status });
-            this.error(errorMsg);
+            this.status({ fill: "red", shape: "ring", text: STATUS.invalidConfig });
+            this.error("Invalid MCP23017 configuration");
             return;
         }
 
@@ -99,10 +122,8 @@ class MCP23017Node extends Node {
                 throw new Error("Pin index out of range");
             }
             if (!this.#reservePin()) {
-                const status = (this._ && this._("mcu_mcp23017.status_pin_conflict")) || "pin in use";
-                const errorMsg = (this._ && this._("mcu_mcp23017.error_pin_conflict")) || "Pin already used in opposite mode";
-                this.status({ fill: "red", shape: "ring", text: status });
-                this.error(errorMsg);
+                this.status({ fill: "red", shape: "ring", text: STATUS.pinConflict });
+                this.error("Pin already used in opposite mode");
                 this.#pin = undefined;
                 this.#expander = undefined;
                 releaseExpander(this.#cacheKey);
@@ -113,14 +134,12 @@ class MCP23017Node extends Node {
         } catch (error) {
             releaseExpander(this.#cacheKey);
             this.#cacheKey = undefined;
-            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
-            this.status({ fill: "red", shape: "ring", text: status });
+            this.status({ fill: "red", shape: "ring", text: STATUS.error });
             this.error(error?.message ?? error);
             return;
         }
 
-        const initializing = (this._ && this._("mcu_mcp23017.status_initializing")) || "initializing";
-        this.status({ fill: "grey", shape: "ring", text: initializing });
+        this.status({ fill: "grey", shape: "ring", text: STATUS.initializing });
 
         if (this.#mode === MODE_MONITOR) {
             this.#startMonitoring();
@@ -135,10 +154,9 @@ class MCP23017Node extends Node {
             return;
         }
 
-        const value = msg?.payload;
-        if (value !== 0 && value !== 1) {
-            const warnMsg = (this._ && this._("mcu_mcp23017.warn_invalid_payload")) || "Expected payload 0 or 1";
-            this.warn(warnMsg);
+        const value = toPinValue(msg?.payload);
+        if (value === undefined) {
+            this.warn("Expected msg.payload to be 0 or 1 (true / false and \"0\" / \"1\" are accepted too)");
             done?.();
             return;
         }
@@ -151,8 +169,7 @@ class MCP23017Node extends Node {
             this.#updateStatus(value);
             done?.();
         } catch (error) {
-            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
-            this.status({ fill: "red", shape: "ring", text: status });
+            this.status({ fill: "red", shape: "ring", text: STATUS.error });
             this.error(error?.message ?? error, msg);
             done?.(error);
         }
@@ -179,15 +196,13 @@ class MCP23017Node extends Node {
         try {
             this.#pin.mode(this.#usePullup ? Digital.InputPullUp : Digital.Input);
         } catch (error) {
-            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
-            this.status({ fill: "red", shape: "ring", text: status });
+            this.status({ fill: "red", shape: "ring", text: STATUS.error });
             this.error(error?.message ?? error);
             this.onStop();
             return;
         }
 
-        const monitoring = (this._ && this._("mcu_mcp23017.status_monitoring")) || "monitoring";
-        this.status({ fill: "blue", shape: "ring", text: monitoring });
+        this.status({ fill: "blue", shape: "ring", text: STATUS.monitoring });
         // emit initial state immediately
         this.#poll(true);
         this.#timerId = Timer.repeat(() => this.#poll(false), this.#pollInterval);
@@ -197,15 +212,13 @@ class MCP23017Node extends Node {
         try {
             this.#pin.mode(Digital.Output);
         } catch (error) {
-            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
-            this.status({ fill: "red", shape: "ring", text: status });
+            this.status({ fill: "red", shape: "ring", text: STATUS.error });
             this.error(error?.message ?? error);
             this.onStop();
             return;
         }
 
-        const ready = (this._ && this._("mcu_mcp23017.status_ready")) || "ready";
-        this.status({ fill: "green", shape: "dot", text: ready });
+        this.status({ fill: "green", shape: "dot", text: STATUS.ready });
         // reflect the current output value in the status, this mode has no output port
         const state = this.#safeRead();
         if (state !== undefined) {
@@ -229,8 +242,7 @@ class MCP23017Node extends Node {
             }
         } catch (error) {
             this.#pollErrors += 1;
-            const status = (this._ && this._("mcu_mcp23017.status_error")) || "error";
-            this.status({ fill: "red", shape: "ring", text: status });
+            this.status({ fill: "red", shape: "ring", text: STATUS.error });
             if (this.#pollErrors >= MAX_POLL_ERRORS) {
                 // stop polling rather than repeating the same failure forever
                 if (this.#timerId !== undefined) {

@@ -92,7 +92,8 @@
         oneditsave: function() {
             const mode = $('#node-input-mode').val();
             this.mode = mode;
-            this.__outputs = this.outputs;
+            // The mode is named after the node's port: "output" reads the pin
+            // and sends it, "input" receives messages and drives the pin.
             if (mode === 'input') {
                 this.inputs = 1;
                 this.outputs = 0;

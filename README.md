@@ -27,7 +27,7 @@ Or install it from the Node-RED palette manager.
 ## Highlights
 
 - `Input (read pin)` mode polls the pin every 50&nbsp;ms by default, emits the initial value immediately, and reports changes as numeric `0`/`1` payloads and status text.
-- `Output (drive pin)` mode accepts only numeric `0` or `1`, drives the MCP23017 pin, and shows the applied value in the node status.
+- `Output (drive pin)` mode accepts `0` or `1` (also `true` / `false` and the strings `"0"` / `"1"`), drives the MCP23017 pin, and shows the applied value in the node status.
 - Shared expander cache and per-pin reservations help avoid conflicting configurations.
 
 ![Read mode configuration](https://raw.githubusercontent.com/404background/node-red-mcu-mcp23017/main/images/output.png)
