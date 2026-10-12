@@ -1,5 +1,15 @@
 [
     {
+        "id": "98216a47c6c20a91",
+        "type": "tab",
+        "label": "MCP23017 buttons and LEDs",
+        "disabled": false,
+        "info": "MCP23017 at 0x20 on SDA 6 / SCL 7 (XIAO ESP32C3).\nButtons from GPB0, GPB2, GPB4 and GPB6 (pins 8, 10, 12, 14) to GND, read with the internal pull-up.\nLEDs on GPA0 to GPA7 (pins 0 to 7): each button drives two of them (pressed = 0, so the LED is off while pressed).",
+        "_mcu": {
+            "mcu": true
+        }
+    },
+    {
         "id": "085f0aab97dd681d",
         "type": "mcu_mcp23017",
         "z": "98216a47c6c20a91",
@@ -13,13 +23,6 @@
         "scl": 7,
         "inputs": 0,
         "outputs": 1,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -47,13 +50,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -94,13 +90,6 @@
         "scl": 7,
         "inputs": 0,
         "outputs": 1,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -127,13 +116,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -155,13 +137,6 @@
         "scl": 7,
         "inputs": 0,
         "outputs": 1,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -188,13 +163,6 @@
         "scl": 7,
         "inputs": 0,
         "outputs": 1,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -221,13 +189,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -249,13 +210,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -277,13 +231,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -305,13 +252,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -333,13 +273,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },
@@ -361,13 +294,6 @@
         "scl": 7,
         "inputs": 1,
         "outputs": 0,
-        "moddable_manifest": {
-            "include": [
-                {
-                    "git": "https://github.com/404background/node-red-mcu-mcp23017.git"
-                }
-            ]
-        },
         "_mcu": {
             "mcu": true
         },

@@ -1,7 +1,12 @@
 import { Node } from "nodered";
 import Timer from "timer";
-import Digital from "pins/digital";
 import { MCP23017 } from "MCP230XX";
+
+/*
+ * Pin modes of the MCP230XX driver (the values of modules/pins/digital,
+ * which the package does not include)
+ */
+const Digital = Object.freeze({ Input: 0, InputPullUp: 1, Output: 8 });
 
 const expanderCache = Object.create(null);
 const MODE_MONITOR = "output";
